@@ -1,3 +1,3 @@
-# typescript-package-template
+# dither-image
 
-Template for Node.js packages in TypeScript.
+Dithers images to match a palette.

@@ -1,10 +1,12 @@
 {
-  "name": "typescript-package-template",
+  "name": "dither-image",
   "version": "0.0.0",
-  "description": "Template for Node.js packages in TypeScript.",
-  "keywords": [],
-  "homepage": "https://github.com/sjx233/typescript-package-template#readme",
-  "bugs": "https://github.com/sjx233/typescript-package-template/issues",
+  "description": "Dithers images to match a palette.",
+  "keywords": [
+    "dither"
+  ],
+  "homepage": "https://github.com/sjx233/dither-image#readme",
+  "bugs": "https://github.com/sjx233/dither-image/issues",
   "license": "MIT",
   "author": "sjx233",
   "main": "lib/index.js",
@@ -13,19 +15,21 @@
     "lib": "lib",
     "test": "lib/test"
   },
-  "repository": "github:sjx233/typescript-package-template",
+  "repository": "github:sjx233/dither-image",
   "scripts": {
     "lint": "eslint --ext .js,.ts src",
     "build": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node lib/test/test.js",
     "postversion": "git push && git push --tags"
   },
   "dependencies": {},
   "devDependencies": {
     "@types/node": "^14.6.4",
+    "@types/pngjs": "^3.4.2",
     "@typescript-eslint/eslint-plugin": "^4.0.1",
     "@typescript-eslint/parser": "^4.0.1",
     "eslint": "^7.8.1",
+    "pngjs": "^5.0.0",
     "typescript": "^4.0.2"
   },
   "engines": {}
