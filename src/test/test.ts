@@ -1,7 +1,7 @@
 import { once } from "events";
 import * as fs from "fs";
 import { PNG } from "pngjs";
-import dither = require("../index");
+import ditherImage = require("../index");
 
 const palette = [
   0x00, 0x00, 0x00,
@@ -25,7 +25,7 @@ const palette = [
   const image = fs.createReadStream("test/in.png").pipe(new PNG);
   await once(image, "parsed");
   const data = image.data;
-  const result = dither(image.width, image.height, data, palette);
+  const result = ditherImage(image.width, image.height, data, palette);
   for (let i = 0, len = result.length; i < len; i++) {
     const c = i << 2;
     const t = result[i] * 3;
