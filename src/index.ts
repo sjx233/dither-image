@@ -9,9 +9,9 @@ function f(t: number): number {
 }
 
 function rgbToLab(r: number, g: number, b: number, buf: Float64Array, index: number): void {
-  r = linearize(0.00392156862745098 * r);
-  g = linearize(0.00392156862745098 * g);
-  b = linearize(0.00392156862745098 * b);
+  r = linearize(r / 255);
+  g = linearize(g / 255);
+  b = linearize(b / 255);
   const x = (0.41239080 * r + 0.35758434 * g + 0.18048079 * b) / 95.0489;
   const y = (0.21263901 * r + 0.71516868 * g + 0.07219232 * b) / 100;
   const z = (0.01933082 * r + 0.11919478 * g + 0.95053215 * b) / 108.8840;
