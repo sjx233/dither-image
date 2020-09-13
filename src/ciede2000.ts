@@ -1,11 +1,4 @@
-function floorMod(x: number, y: number): number {
-  const mod = x % y;
-  return (y > 0 ? mod < 0 : mod > 0) ? mod + y : mod;
-}
-
-function wrap(x: number, low: number, high: number): number {
-  return floorMod(x - low, high - low) + low;
-}
+import { wrap } from "./util";
 
 function hpmFn(hp1: number, hp2: number): number {
   let hp = (hp1 + hp2) * 0.5;
