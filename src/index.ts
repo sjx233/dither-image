@@ -20,10 +20,8 @@ function rgbToLab(r: number, g: number, b: number, buf: Float64Array, index: num
   buf[index + 2] = 200 * (f(y) - f(z));
 }
 
-function paletteRgbToLab(palette: ArrayLike<number>): Float64Array {
+function paletteRgbToLab(palette: Uint8ClampedArray): Float64Array {
   const length = palette.length;
-  if (!length) throw new RangeError("Palette is empty");
-  if (!Number.isInteger(length / 3)) throw new RangeError("Size of palette is not a multiple of 3");
   const result = new Float64Array(length);
   for (let i = 0; i < length; i += 3)
     rgbToLab(palette[i], palette[i + 1], palette[i + 2], result, i);
@@ -46,6 +44,8 @@ function closestColor(l: number, a: number, b: number, palette: Float64Array): n
 
 function ditherImage(width: number, height: number, data: ArrayLike<number>, palette: ArrayLike<number>): Uint32Array {
   if (data.length !== width * height * 4) throw new RangeError("Size of data is invalid");
+  if (palette.length === 0) throw new RangeError("Palette is empty");
+  if (palette.length % 3 !== 0) throw new RangeError("Size of palette is not a multiple of 3");
   const rgbaData = new Uint8ClampedArray(data);
   const rgbPalette = new Uint8ClampedArray(palette);
   const labPalette = paletteRgbToLab(rgbPalette);
