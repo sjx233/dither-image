@@ -1,30 +1,31 @@
 import ciede2000 = require("./ciede2000");
 import rgbToLab = require("./rgb-to-lab");
-import { clamp } from "./util";
 
 function ditherImage(width: number, height: number, data: ArrayLike<number>, palette: ArrayLike<number>): Uint32Array {
   const size = width * height;
   if (data.length !== size << 2)
     throw new RangeError("Size of data is invalid");
-  const paletteSize = palette.length / 3;
-  if (paletteSize === 0)
+  if (palette.length === 0)
     throw new RangeError("Palette is empty");
-  if (!Number.isInteger(paletteSize))
+  if (palette.length % 3 !== 0)
     throw new RangeError("Size of palette is not a multiple of 3");
   const rgbData = new Float32Array(size * 3);
+  const alpha = new Float32Array(size);
   for (let i = 0; i < size; i++) {
     const s = i << 2;
     const d = i * 3;
-    rgbData[d] = clamp(data[s] / 255, 0, 1);
-    rgbData[d + 1] = clamp(data[s + 1] / 255, 0, 1);
-    rgbData[d + 2] = clamp(data[s + 2] / 255, 0, 1);
+    rgbData[d] = data[s] / 255.0;
+    rgbData[d + 1] = data[s + 1] / 255.0;
+    rgbData[d + 2] = data[s + 2] / 255.0;
+    alpha[i] = data[s + 3] / 255.0;
   }
+  const paletteSize = palette.length / 3;
   const rgbPalette = new Float32Array(paletteSize * 3);
   for (let i = 0; i < paletteSize; i++) {
     const t = i * 3;
-    rgbPalette[t] = clamp(palette[t] / 255, 0, 1);
-    rgbPalette[t + 1] = clamp(palette[t + 1] / 255, 0, 1);
-    rgbPalette[t + 2] = clamp(palette[t + 2] / 255, 0, 1);
+    rgbPalette[t] = palette[t] / 255.0;
+    rgbPalette[t + 1] = palette[t + 1] / 255.0;
+    rgbPalette[t + 2] = palette[t + 2] / 255.0;
   }
   const labPalette = new Float32Array(paletteSize * 3);
   for (let i = 0; i < paletteSize; i++) {
@@ -58,9 +59,10 @@ function ditherImage(width: number, height: number, data: ArrayLike<number>, pal
       }
     }
     const t = (result[i] = index) * 3;
-    const rN = rO - rgbPalette[t];
-    const gN = gO - rgbPalette[t + 1];
-    const bN = bO - rgbPalette[t + 2];
+    const m = alpha[i];
+    const rN = (rO - rgbPalette[t]) * m;
+    const gN = (gO - rgbPalette[t + 1]) * m;
+    const bN = (bO - rgbPalette[t + 2]) * m;
     rgbData[d0 + 3] += rN * 0.4375;
     rgbData[d0 + 4] += gN * 0.4375;
     rgbData[d0 + 5] += bN * 0.4375;

@@ -1,40 +1,35 @@
-import { once } from "events";
 import * as fs from "fs";
 import { PNG } from "pngjs";
-import ditherImage = require("../index");
+import ditherImage = require("..");
 
 const palette = [
-  0x00, 0x00, 0x00,
-  0x00, 0x00, 0xaa,
-  0x00, 0xaa, 0x00,
-  0x00, 0xaa, 0xaa,
-  0xaa, 0x00, 0x00,
-  0xaa, 0x00, 0xaa,
-  0xaa, 0x55, 0x00,
-  0xaa, 0xaa, 0xaa,
-  0x55, 0x55, 0x55,
-  0x55, 0x55, 0xff,
-  0x55, 0xff, 0x55,
-  0x55, 0xff, 0xff,
-  0xff, 0x55, 0x55,
-  0xff, 0x55, 0xff,
-  0xff, 0xff, 0x55,
-  0xff, 0xff, 0xff,
+  0, 0, 0,
+  0, 0, 170,
+  0, 170, 0,
+  0, 170, 170,
+  170, 0, 0,
+  170, 0, 170,
+  170, 85, 0,
+  170, 170, 170,
+  85, 85, 85,
+  85, 85, 255,
+  85, 255, 85,
+  85, 255, 255,
+  255, 85, 85,
+  255, 85, 255,
+  255, 255, 85,
+  255, 255, 255,
 ];
-(async () => {
-  const image = fs.createReadStream("test/in.png").pipe(new PNG);
-  await once(image, "parsed");
-  const data = image.data;
-  const result = ditherImage(image.width, image.height, data, palette);
-  for (let i = 0, len = result.length; i < len; i++) {
-    const c = i << 2;
-    const t = result[i] * 3;
-    data[c] = palette[t];
-    data[c + 1] = palette[t + 1];
-    data[c + 2] = palette[t + 2];
+const image = fs.createReadStream("test/in.png").pipe(new PNG).once("parsed", () => {
+  const { width, height, data } = image;
+  const size = width * height;
+  const result = ditherImage(width, height, data, palette);
+  for (let i = 0; i < size; i++) {
+    const d = i << 2;
+    const s = result[i] * 3;
+    data[d] = palette[s];
+    data[d + 1] = palette[s + 1];
+    data[d + 2] = palette[s + 2];
   }
-  await once(image.pack().pipe(fs.createWriteStream("test/out.png")), "finish");
-})().catch(error => {
-  console.error(error);
-  process.exit(1);
+  image.pack().pipe(fs.createWriteStream("test/out.png"));
 });
