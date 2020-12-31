@@ -3,24 +3,19 @@
     "target": "es5",
     "module": "commonjs",
     "moduleResolution": "node",
-    "baseUrl": ".",
+    "baseUrl": "./src",
     "outDir": "./lib",
     "strict": true,
     "removeComments": true,
     "importHelpers": true,
     "sourceMap": true,
     "declaration": true,
-    "declarationMap": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "paths": {
-      "*": [
-        "node_modules/*",
-        "src/types/*"
-      ]
-    }
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
   },
   "include": [
-    "src/**/*"
+    "./src/**/*"
   ]
 }
