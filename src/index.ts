@@ -1,32 +1,16 @@
 import ciede2000 = require("./ciede2000");
+import rgbToLab = require("./rgb-to-lab");
 import { clamp } from "./util";
-
-function linearize(u: number): number {
-  return u <= 0.04045 ? 0.07739938080495357 * u : ((u + 0.055) / 1.055) ** 2.4;
-}
-
-function f(t: number): number {
-  return t > 0.008856451679035631 ? Math.cbrt(t) : 7.787037037037037 * t + 0.13793103448275862;
-}
-
-function rgbToLab(r: number, g: number, b: number, buf: Float32Array, index: number): void {
-  r = linearize(r);
-  g = linearize(g);
-  b = linearize(b);
-  const x = (0.41239080 * r + 0.35758434 * g + 0.18048079 * b) / 95.0489;
-  const y = (0.21263901 * r + 0.71516868 * g + 0.07219232 * b) / 100;
-  const z = (0.01933082 * r + 0.11919478 * g + 0.95053215 * b) / 108.8840;
-  buf[index] = 116 * f(y) - 16;
-  buf[index + 1] = 500 * (f(x) - f(y));
-  buf[index + 2] = 200 * (f(y) - f(z));
-}
 
 function ditherImage(width: number, height: number, data: ArrayLike<number>, palette: ArrayLike<number>): Uint32Array {
   const size = width * height;
-  if (data.length !== size << 2) throw new RangeError("Size of data is invalid");
-  const paletteLength = palette.length;
-  if (paletteLength === 0) throw new RangeError("Palette is empty");
-  if (paletteLength % 3 !== 0) throw new RangeError("Size of palette is not a multiple of 3");
+  if (data.length !== size << 2)
+    throw new RangeError("Size of data is invalid");
+  const paletteSize = palette.length / 3;
+  if (paletteSize === 0)
+    throw new RangeError("Palette is empty");
+  if (!Number.isInteger(paletteSize))
+    throw new RangeError("Size of palette is not a multiple of 3");
   const rgbData = new Float32Array(size * 3);
   for (let i = 0; i < size; i++) {
     const s = i << 2;
@@ -35,15 +19,20 @@ function ditherImage(width: number, height: number, data: ArrayLike<number>, pal
     rgbData[d + 1] = clamp(data[s + 1] / 255, 0, 1);
     rgbData[d + 2] = clamp(data[s + 2] / 255, 0, 1);
   }
-  const paletteSize = paletteLength / 3;
-  const rgbPalette = new Float32Array(paletteLength);
-  const labPalette = new Float32Array(paletteLength);
+  const rgbPalette = new Float32Array(paletteSize * 3);
+  for (let i = 0; i < paletteSize; i++) {
+    const t = i * 3;
+    rgbPalette[t] = clamp(palette[t] / 255, 0, 1);
+    rgbPalette[t + 1] = clamp(palette[t + 1] / 255, 0, 1);
+    rgbPalette[t + 2] = clamp(palette[t + 2] / 255, 0, 1);
+  }
+  const labPalette = new Float32Array(paletteSize * 3);
   for (let i = 0; i < paletteSize; i++) {
     const t = i * 3;
     rgbToLab(
-      rgbPalette[t] = clamp(palette[t] / 255, 0, 1),
-      rgbPalette[t + 1] = clamp(palette[t + 1] / 255, 0, 1),
-      rgbPalette[t + 2] = clamp(palette[t + 2] / 255, 0, 1),
+      rgbPalette[t],
+      rgbPalette[t + 1],
+      rgbPalette[t + 2],
       labPalette, t);
   }
   const result = new Uint32Array(size);
